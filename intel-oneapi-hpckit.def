@@ -1,0 +1,5 @@
+Bootstrap: docker
+From: intel/oneapi-hpckit:latest
+
+%environment
+  export LC_ALL=C
