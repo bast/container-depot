@@ -1,0 +1,27 @@
+Bootstrap: docker
+From: ubuntu:20.04
+
+%post
+  export DEBIAN_FRONTEND=noninteractive
+
+  apt-get -qq update
+  apt-get -qq -y install git
+  apt-get -qq -y install gfortran-8
+  apt-get -qq -y install gcc-8
+  apt-get -qq -y install g++-8
+  apt-get -qq -y install libomp-dev
+  apt-get -qq -y install mpich libmpich-dev libhdf5-mpich-dev
+  apt-get -qq -y install python python3-pip
+  apt-get -qq -y install libhdf5-dev
+  apt-get -qq -y install libblas-dev liblapack-dev
+
+  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 700
+  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
+  update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-8 800
+
+  pip install scipy
+  pip install h5py
+  pip install cmake
+
+%environment
+  export LC_ALL=C
