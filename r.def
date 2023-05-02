@@ -1,0 +1,43 @@
+Bootstrap: docker
+From: rstudio/r-base:focal
+
+%files
+  install.R
+  .Rprofile
+
+%post
+  R_VERSION=4.2.3
+  OS_IDENTIFIER=ubuntu-2004
+  wget https://cdn.posit.co/r/${OS_IDENTIFIER}/pkgs/r-${R_VERSION}_1_amd64.deb && \
+  apt-get update -qq && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -f -y ./r-${R_VERSION}_1_amd64.deb && \
+  ln -s /opt/R/${R_VERSION}/bin/R /usr/bin/R && \
+  ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/bin/Rscript && \
+  ln -s /opt/R/${R_VERSION}/lib/R /usr/lib/R && \
+  rm r-${R_VERSION}_1_amd64.deb && \
+  rm -rf /var/lib/apt/lists/*
+
+  Rscript install.R
+
+%environment
+  export LC_ALL=C
+
+%labels
+  Author radovan.bast@uit.no
+
+%help
+  Requires two files to be present in the same directory:
+
+  - .Rprofile (example content below)
+
+    # set default mirror
+    options(repos=c(CRAN="http://cran.us.r-project.org"))
+
+    # set number of cores for package installation
+    options(Ncpus = 8)
+
+  - install.R (example content below)
+
+    install.packages("vcfR")
+    install.packages("hierfstat")
+    install.packages("poppr")
