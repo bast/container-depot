@@ -1,43 +1,53 @@
 Bootstrap: docker
 From: rstudio/r-base:focal
 
-%files
-  install.R
-  .Rprofile
-
 %post
-  R_VERSION=4.2.3
-  OS_IDENTIFIER=ubuntu-2004
-  wget https://cdn.posit.co/r/${OS_IDENTIFIER}/pkgs/r-${R_VERSION}_1_amd64.deb && \
-  apt-get update -qq && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -f -y ./r-${R_VERSION}_1_amd64.deb && \
-  ln -s /opt/R/${R_VERSION}/bin/R /usr/bin/R && \
-  ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/bin/Rscript && \
-  ln -s /opt/R/${R_VERSION}/lib/R /usr/lib/R && \
-  rm r-${R_VERSION}_1_amd64.deb && \
-  rm -rf /var/lib/apt/lists/*
+    R_VERSION=4.3.0
+    OS_IDENTIFIER=ubuntu-2004
 
-  Rscript install.R
+    wget https://cdn.posit.co/r/${OS_IDENTIFIER}/pkgs/r-${R_VERSION}_1_amd64.deb && \
+    apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -f -y ./r-${R_VERSION}_1_amd64.deb && \
+    ln -s /opt/R/${R_VERSION}/bin/R /usr/bin/R && \
+    ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/bin/Rscript && \
+    ln -s /opt/R/${R_VERSION}/lib/R /usr/lib/R && \
+    rm r-${R_VERSION}_1_amd64.deb && \
+    rm -rf /var/lib/apt/lists/*
 
-%environment
-  export LC_ALL=C
+    # install renv
+    echo "options(repos = c(CRAN = 'http://cran.us.r-project.org'))" > .Rprofile
+    R -e 'install.packages("renv")'
 
 %labels
-  Author radovan.bast@uit.no
+    Author radovan.bast@uit.no
+
+%environment
+    export LC_ALL=C
+
+%runscript
+    # can be configured by setting RENV_CACHE
+    export RENV_PATHS_ROOT=${RENV_CACHE:-"renv-cache"}
+
+    R -e 'renv::init()'
+
+    if [ -e "renv.lock" ]; then
+        # lock file exists: restore from it
+
+        R -e 'renv::restore()'
+    else
+        # lock file does not exist: first install dependencies, then snapshot
+
+        Rscript install.R
+        R -e 'renv::snapshot()'
+    fi
+
+    $@
 
 %help
-  Requires two files to be present in the same directory:
+    Requires either an install.R file or a renv.lock file in the same directory.
+    Example install.R file:
 
-  - .Rprofile (example content below)
-
-    # set default mirror
-    options(repos=c(CRAN="http://cran.us.r-project.org"))
-
-    # set number of cores for package installation
-    options(Ncpus = 8)
-
-  - install.R (example content below)
-
-    install.packages("vcfR")
-    install.packages("hierfstat")
-    install.packages("poppr")
+    renv::install('ggplot2')
+    renv::install('vcfR')
+    renv::install('hierfstat')
+    renv::install('poppr')
