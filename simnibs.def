@@ -1,0 +1,26 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -y
+    apt-get install -y wget
+
+    mkdir /deleteme && cd /deleteme
+    wget https://github.com/simnibs/simnibs/releases/download/v4.0.1/simnibs_installer_linux.tar.gz
+    tar xf simnibs_installer_linux.tar.gz
+    cd simnibs_installer
+    ./install -s -t /simnibs
+    rm -rf /deleteme
+
+%runscript
+    export PATH=/simnibs/bin:$PATH
+    $@
+
+%help
+    $ ./simnibs.sif charm ernie org/ernie_T1.nii.gz
+    https://simnibs.github.io/simnibs/build/html/tutorial/head_meshing.html
+    https://simnibs.github.io/simnibs/build/html/dataset.html
+    https://kathleenhupfeld.com/mni-template-coordinate-systems/
+    https://clinicalresearcher.org/F3/calculate.php
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2882797/
