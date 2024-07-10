@@ -1,16 +1,28 @@
 Bootstrap: docker
-From: python:3.10-alpine
+From: alpine:latest
+
 
 %files
     requirements.txt
 
+
 %post
-    apk add --no-cache build-base libffi-dev git
-    pip install --upgrade pip
-    pip install -r requirements.txt
+    apk update
+    apk add --no-cache build-base libffi-dev git curl python3-dev
+
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH=$PATH:/root/.cargo/bin
+
+    mkdir -p /software
+    uv venv /software/venv
+    source /software/venv/bin/activate
+    uv pip install -r requirements.txt
+
 
 %environment
     export LC_ALL=C
 
+
 %runscript
+    source /software/venv/bin/activate
     sphinx-autobuild $@
