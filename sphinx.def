@@ -11,7 +11,7 @@ From: alpine:latest
     apk add --no-cache build-base libffi-dev git curl python3-dev
 
     curl -LsSf https://astral.sh/uv/install.sh | sh
-    export PATH=$PATH:/root/.cargo/bin
+    export PATH=$PATH:/root/.local/bin
 
     mkdir -p /software
     uv venv /software/venv
