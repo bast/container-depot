@@ -4,7 +4,7 @@ From: ubuntu:22.04
 
 %post
     export DEBIAN_FRONTEND=noninteractive
-    apt-get update && apt-get install -y curl
+    apt-get update && apt-get install -y curl build-essential
 
     export CARGO_HOME=/opt/rust/cargo
     export RUSTUP_HOME=/opt/rust/rustup
@@ -18,5 +18,6 @@ From: ubuntu:22.04
     export PATH=${CARGO_HOME}/bin:${PATH}
 
 
+# might require setting --env CARGO_HOME=$(pwd)/_cache or similar
 %runscript
     $@
